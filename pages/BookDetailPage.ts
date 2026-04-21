@@ -1,55 +1,67 @@
 import { type Locator, type Page } from '@playwright/test';
 
 /**
- * Page Object for the Book Detail page (/books?book={isbn}).
+ * Page Object for the Book Detail page (/books?search={isbn}).
  * Provides methods to read book metadata and interact with action buttons.
  *
- * Navigation quirk: directly loading `/books?book={isbn}` renders the book LIST,
+ * Navigation quirk: directly loading `/books?search={isbn}` renders the book LIST,
  * not the detail view. Always arrive here via {@link BookListPage.clickBook} and then
- * `await page.waitForURL(/books\?book=/)` before using this class.
+ * `await page.waitForURL(/books\?search=/)` before using this class.
+ *
+ * Button quirk: When unauthenticated only "Back To Book Store" is present.
+ * When authenticated, "Add To Your Collection" is also rendered (both share
+ * `id="addNewRecordButton"`, so role + name selectors are used to disambiguate).
+ *
+ * Value locators: Each metadata field is wrapped in a `#field-wrapper` div that
+ * contains two labels — a static field name and the dynamic value. Locators in this
+ * class target `.col-md-9 label` within each wrapper to return only the value text.
  */
 export class BookDetailPage {
-  /** "Back To Book Store" button (shares `id="submit"` on this page). */
+  /** "Back To Book Store" button (always present on the detail page). */
   readonly backButton: Locator;
-  /** "Add To Your Collection" action button. */
+  /** "Add To Your Collection" action button (only rendered when authenticated). */
   readonly addToCollectionButton: Locator;
-  /** Label element containing the book title value. */
+  /** "Login" button shown inside `#login-wrapper` when the user is unauthenticated. */
+  readonly loginButton: Locator;
+  /** Value label for the book title. */
   readonly titleValue: Locator;
-  /** Label element containing the subtitle value. */
+  /** Value label for the subtitle. */
   readonly subtitleValue: Locator;
-  /** Label element containing the author value. */
+  /** Value label for the author. */
   readonly authorValue: Locator;
-  /** Label element containing the publisher value. */
+  /** Value label for the publisher. */
   readonly publisherValue: Locator;
-  /** Label element containing the ISBN value. */
+  /** Value label for the ISBN. */
   readonly isbnValue: Locator;
-  /** Label element containing the total pages value. */
+  /** Value label for the total pages count. */
   readonly pagesValue: Locator;
-  /** Label element containing the description value. */
+  /** Value label for the description. */
   readonly descriptionValue: Locator;
-  /** Label element containing the website URL value. */
+  /** Value label for the website URL. */
   readonly websiteValue: Locator;
 
   constructor(private readonly page: Page) {
-    this.backButton = page.locator('#submit');
-    this.addToCollectionButton = page.locator('#addNewRecordButton');
-    this.titleValue = page.locator('#title-wrapper');
-    this.subtitleValue = page.locator('#subtitle-wrapper');
-    this.authorValue = page.locator('#author-wrapper');
-    this.publisherValue = page.locator('#publisher-wrapper');
-    this.isbnValue = page.locator('#ISBN-wrapper');
-    this.pagesValue = page.locator('#pages-wrapper');
-    this.descriptionValue = page.locator('#description-wrapper');
-    this.websiteValue = page.locator('#website-wrapper');
+    this.backButton = page.getByRole('button', { name: 'Back To Book Store' });
+    this.addToCollectionButton = page.getByRole('button', { name: 'Add To Your Collection' });
+    this.loginButton = page.locator('#login-wrapper button');
+    this.titleValue = page.locator('#title-wrapper .col-md-9 label');
+    this.subtitleValue = page.locator('#subtitle-wrapper .col-md-9 label');
+    this.authorValue = page.locator('#author-wrapper .col-md-9 label');
+    this.publisherValue = page.locator('#publisher-wrapper .col-md-9 label');
+    this.isbnValue = page.locator('#ISBN-wrapper .col-md-9 label');
+    this.pagesValue = page.locator('#pages-wrapper .col-md-9 label');
+    this.descriptionValue = page.locator('#description-wrapper .col-md-9 label');
+    this.websiteValue = page.locator('#website-wrapper .col-md-9 label');
   }
 
   /**
-   * Waits until the "Add To Your Collection" button is visible, confirming the
-   * detail view has fully rendered.
+   * Waits until the "Back To Book Store" button is visible, confirming the
+   * detail view has fully rendered. This button is present in both authenticated
+   * and unauthenticated states.
    * @returns Promise that resolves when the page is ready for interaction.
    */
   async waitForReady(): Promise<void> {
-    await this.addToCollectionButton.waitFor({ state: 'visible' });
+    await this.backButton.waitFor({ state: 'visible' });
   }
 
   /**
@@ -62,8 +74,18 @@ export class BookDetailPage {
   }
 
   /**
+   * Clicks the "Login" button shown in the `#login-wrapper` area when the user
+   * is unauthenticated. Navigates to /login.
+   * @returns Promise that resolves when the click is complete.
+   */
+  async clickLogin(): Promise<void> {
+    await this.loginButton.scrollIntoViewIfNeeded();
+    await this.loginButton.click();
+  }
+
+  /**
    * Clicks the "Add To Your Collection" button.
-   * Unauthenticated users will be redirected to /login.
+   * Only available when the user is authenticated.
    * @returns Promise that resolves when the click is complete.
    */
   async clickAddToCollection(): Promise<void> {

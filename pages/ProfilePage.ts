@@ -4,34 +4,36 @@ import { type Locator, type Page } from '@playwright/test';
  * Page Object for the User Profile page (/profile).
  * Provides methods to read the authenticated user's state and manage their book collection.
  *
- * Button quirk: The profile page renders three distinct buttons that all share
- * `id="submit"` — Logout, Delete Account, and Delete All Books. All button locators
- * in this class use `getByRole('button', { name: '...' })` to disambiguate.
+ * Button quirk: The profile page renders multiple buttons that share `id="submit"` —
+ * Logout, Delete Account, and Delete All Books. All button locators in this class use
+ * `getByRole('button', { name: '...' })` to disambiguate by visible text.
+ *
+ * Table structure: DemoQA renders the book collection as a plain HTML `<table>` (not ReactTable).
  */
 export class ProfilePage {
   /** Label element displaying the currently logged-in user's username. */
   readonly userNameValue: Locator;
-  /** "Log out" button. */
+  /** "Logout" button. */
   readonly logoutButton: Locator;
   /** "Delete Account" button. */
   readonly deleteAccountButton: Locator;
   /** "Delete All Books" button. */
   readonly deleteAllBooksButton: Locator;
-  /** "Go To Book Store" navigation button (has a unique id). */
+  /** "Go To Book Store" navigation button. */
   readonly goToBookStoreButton: Locator;
-  /** ReactTable body element that wraps the user's book collection rows. */
+  /** The `<tbody>` element of the book collection table. */
   readonly bookTableBody: Locator;
-  /** All row-group elements in the book collection ReactTable. */
+  /** All `<tr>` rows in the book collection table body. */
   readonly bookRows: Locator;
 
   constructor(private readonly page: Page) {
     this.userNameValue = page.locator('#userName-value');
-    this.logoutButton = page.getByRole('button', { name: 'Log out' });
+    this.logoutButton = page.getByRole('button', { name: 'Logout' });
     this.deleteAccountButton = page.getByRole('button', { name: 'Delete Account' });
-    this.deleteAllBooksButton = page.getByRole('button', { name: 'Delete All Books' });
+    this.deleteAllBooksButton = page.getByRole('button', { name: 'Delete All Books' }).first();
     this.goToBookStoreButton = page.locator('#gotoStore');
-    this.bookTableBody = page.locator('.rt-tbody');
-    this.bookRows = page.locator('.rt-tbody .rt-tr-group');
+    this.bookTableBody = page.locator('tbody');
+    this.bookRows = page.locator('tbody tr');
   }
 
   /**
@@ -53,7 +55,8 @@ export class ProfilePage {
   }
 
   /**
-   * Returns the number of row-group elements in the book collection ReactTable.
+   * Returns the number of rows in the book collection table.
+   * Returns 0 when the user's collection is empty.
    * @returns Promise resolving to the row count.
    */
   async getBookCount(): Promise<number> {
@@ -66,26 +69,29 @@ export class ProfilePage {
    * @returns Promise resolving to `true` if the book is visible in the collection.
    */
   async isBookInCollection(title: string): Promise<boolean> {
-    return this.page
-      .locator('.rt-tbody .rt-tr-group', { hasText: title })
-      .isVisible();
+    return (await this.page.locator('tbody tr', { hasText: title }).count()) > 0;
   }
 
   /**
-   * Finds the table row matching the given book title and clicks its delete button.
-   * The delete button is a span with `title="Delete Book"` containing an SVG icon.
+   * Finds the table row matching the given book title, clicks its delete button,
+   * and confirms the Bootstrap modal that DemoQA shows before deletion.
+   * DemoQA uses a React-Bootstrap modal (not a native `window.confirm`) with
+   * an OK button at `#closeSmallModal-ok`.
    * @param title - Title of the book to remove from the collection.
-   * @returns Promise that resolves when the delete button has been clicked.
+   * @returns Promise that resolves when the delete has been confirmed.
    */
   async deleteBook(title: string): Promise<void> {
-    const row = this.page.locator('.rt-tbody .rt-tr-group', { hasText: title });
-    const deleteButton = row.locator('span[title="Delete Book"]');
+    const row = this.page.locator('tbody tr', { hasText: title });
+    const deleteButton = row.locator('span[id^="delete-record-"]');
     await deleteButton.scrollIntoViewIfNeeded();
     await deleteButton.click();
+    // Confirm the "Delete Book" Bootstrap modal that appears after clicking delete
+    await this.page.locator('#closeSmallModal-ok').waitFor({ state: 'visible' });
+    await this.page.locator('#closeSmallModal-ok').click();
   }
 
   /**
-   * Clicks the "Log out" button. Expect navigation to /login after this action.
+   * Clicks the "Logout" button. Expect navigation to /login after this action.
    * @returns Promise that resolves when the button has been clicked.
    */
   async logout(): Promise<void> {
@@ -103,7 +109,7 @@ export class ProfilePage {
   }
 
   /**
-   * Clicks the "Delete All Books" button, clearing the entire book collection.
+   * Clicks the first "Delete All Books" button, clearing the entire book collection.
    * @returns Promise that resolves when the button has been clicked.
    */
   async deleteAllBooks(): Promise<void> {

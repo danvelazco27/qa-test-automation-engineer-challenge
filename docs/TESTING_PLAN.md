@@ -137,7 +137,7 @@ All selectors confirmed via live exploration with `playwright-cli` and programma
 
 > **Critical quirk**: The profile page uses `id="submit"` for THREE different buttons (Logout, Delete Account, Delete All Books). All locators must use `getByRole('button', { name: '...' })` not `#submit`.
 
-> **Authentication strategy**: `page.addInitScript()` localStorage injection does NOT authenticate correctly in DemoQA (React app may check auth differently). Real UI login via `LoginFormPage.login()` is required, or `storageState` serialization via Playwright's `page.context().storageState()` after a login.
+> **Authentication strategy**: DemoQA's React app reads auth from **cookies**, not localStorage. Verified via live inspection after UI login: four session cookies are set — `userID`, `userName`, `token`, `expires`. Auth injection uses `page.context().addCookies([...])` which is context-scoped and can be called before any page navigation. `page.addInitScript()` localStorage injection does NOT work.
 
 ---
 
@@ -330,7 +330,7 @@ All selectors confirmed via live exploration with `playwright-cli` and programma
 | **DELETE single book** | `DELETE /BookStore/v1/Book` returns HTTP 500 for all scenarios (Swagger: 204) | Tests intentionally fail; documented in Known API Deviations section |
 | **DELETE all books** | Requires `UserId` as query param, not request body | Use `params: { UserId: userID }` in Playwright request options |
 | **GET /Book (no ISBN)** | Returns HTTP 500 + HTML page | Test asserts status 500; does not call `.json()` |
-| **Profile auth** | `addInitScript` localStorage injection unreliable | Use real UI login or `page.context().storageState()` serialization |
+| **Profile auth** | DemoQA uses **cookies** (not localStorage) for auth: `token`, `expires`, `userID`, `userName` | Use `page.context().addCookies([...])` — context-scoped, works before any navigation |
 | **Password requirements** | Minimum 8 chars + upper + lower + digit + special char | Test user passwords: `Test@1234!` format |
 
 ---

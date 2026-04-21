@@ -4,25 +4,22 @@ import { type Locator, type Page } from '@playwright/test';
  * Page Object for the Book List page (/books).
  * Provides methods for navigating, searching, and interacting with the book catalogue.
  *
- * ReactTable quirk: the search input has a debounce before the table updates.
+ * Table structure: DemoQA renders books in a plain HTML `<table>` (not ReactTable).
  * After calling {@link search}, use {@link waitForBookCount} to let the table settle
- * rather than asserting row counts immediately.
+ * before asserting row counts — the search input applies a debounce before filtering.
  */
 export class BookListPage {
   /** Search/filter input for narrowing books by title or author. */
   readonly searchInput: Locator;
-  /** All row-group elements in the ReactTable body (one per visible book). */
+  /** All `<tr>` rows in the table body (one per visible book). */
   readonly bookRows: Locator;
   /** Anchor tags for each book title rendered in the table body. */
   readonly bookTitleLinks: Locator;
-  /** "No rows found" empty-state banner displayed when a search yields zero results. */
-  readonly emptyState: Locator;
 
   constructor(private readonly page: Page) {
     this.searchInput = page.locator('#searchBox');
-    this.bookRows = page.locator('.rt-tbody .rt-tr-group');
-    this.bookTitleLinks = page.locator('.rt-tbody .rt-td a');
-    this.emptyState = page.locator('.rt-noData');
+    this.bookRows = page.locator('tbody tr');
+    this.bookTitleLinks = page.locator('span[id^="see-book-"] a');
   }
 
   /**
@@ -36,7 +33,7 @@ export class BookListPage {
 
   /**
    * Types a search query into the search box.
-   * The ReactTable applies a debounce before filtering; call {@link waitForBookCount}
+   * The table applies a debounce before filtering; call {@link waitForBookCount}
    * after this method to wait for the result count to stabilise.
    * @param query - The text to search for (book title or author name).
    * @returns Promise that resolves when the input value has been set.
@@ -66,7 +63,7 @@ export class BookListPage {
 
   /**
    * Waits until the book table contains exactly the specified number of book links.
-   * Use after {@link search} or {@link clearSearch} to let the ReactTable debounce settle.
+   * Use after {@link search} or {@link clearSearch} to let the debounce settle.
    * @param count - The expected number of book title links.
    * @param options - Optional wait configuration.
    * @param options.timeout - Maximum wait time in milliseconds (default: 10 000).
@@ -76,7 +73,7 @@ export class BookListPage {
     await this.page.waitForFunction(
       ({ selector, expected }: { selector: string; expected: number }) =>
         document.querySelectorAll(selector).length === expected,
-      { selector: '.rt-tbody .rt-td a', expected: count },
+      { selector: 'span[id^="see-book-"] a', expected: count },
       { timeout: options?.timeout ?? 10_000 }
     );
   }
@@ -88,16 +85,18 @@ export class BookListPage {
    * @returns Promise that resolves after the click action completes.
    */
   async clickBook(title: string): Promise<void> {
-    const link = this.page.locator('.rt-tbody .rt-td a', { hasText: title });
+    const link = this.page.locator('span[id^="see-book-"] a', { hasText: title });
     await link.scrollIntoViewIfNeeded();
     await link.click();
   }
 
   /**
-   * Checks whether the empty-state "No rows found" banner is currently visible.
-   * @returns Promise resolving to `true` when the no-data banner is displayed.
+   * Checks whether the book table currently has zero rows, indicating an empty
+   * search result. DemoQA renders an empty `<tbody>` rather than a dedicated
+   * "no results" element.
+   * @returns Promise resolving to `true` when no book links are visible.
    */
   async isEmpty(): Promise<boolean> {
-    return this.emptyState.isVisible();
+    return (await this.bookTitleLinks.count()) === 0;
   }
 }

@@ -30,8 +30,8 @@ export default defineConfig({
   /** Retry flaky tests: 2 retries in CI (handles DemoQA ad overlay transients), 0 locally */
   retries: process.env.CI ? 2 : 0,
 
-  /** Worker count: 4 in CI to speed up the suite, unlimited locally */
-  workers: process.env.CI ? 4 : undefined,
+  /** Worker count: 4 in CI, 2 locally to avoid overwhelming the DemoQA shared server */
+  workers: process.env.CI ? 4 : 2,
 
   reporter: [
     /** Interactive HTML report — open manually with `npm run test:report` */
@@ -53,6 +53,12 @@ export default defineConfig({
     /** Record video on the first retry to replay visual failures */
     video: 'on-first-retry',
   },
+
+  /**
+   * Per-test timeout: 60 s locally (DemoQA is a slow external site and button-based
+   * navigation adds extra page loads). CI retains 60 s with 2 retries.
+   */
+  timeout: 60_000,
 
   /** Test artefacts (screenshots, videos, traces) land here */
   outputDir: 'test-results',
