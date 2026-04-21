@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "test:ui": "playwright test tests/e2e",
+    "test:ui": "playwright test tests/e2e --project=chromium --project=mobile-chrome",
     "test:api": "playwright test tests/api",
     "test": "playwright test",
     "test:coverage": "c8 --reporter=html --reporter=text --reports-dir=reports/coverage npx playwright test tests/e2e --project=chromium",

@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Which suite to run (all | ui | api)'
+        required: false
+        default: 'all'
+        type: choice
+        options: [all, ui, api]
+
+jobs:
+  test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js ───────────────────────────────────────────────────────────
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # ── 3. Dependencies ───────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 4. Playwright browsers (cached) ──────────────────────────────────────
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: playwright-
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+
+      - name: Install Playwright OS dependencies (cached hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      # ── 5. Lint ───────────────────────────────────────────────────────────────
+      - name: Lint
+        run: npm run lint
+
+      # ── 6a. UI tests — Chromium ───────────────────────────────────────────────
+      - name: Run UI tests (chromium)
+        if: >
+          github.event_name != 'workflow_dispatch' ||
+          inputs.test_suite == 'all' ||
+          inputs.test_suite == 'ui'
+        run: npx playwright test tests/e2e --project=chromium
+        continue-on-error: true
+        env:
+          CI: 'true'
+          BASE_URL: https://demoqa.com
+
+      # ── 6b. UI tests — Mobile Chrome ─────────────────────────────────────────
+      - name: Run UI tests (mobile-chrome)
+        if: >
+          github.event_name != 'workflow_dispatch' ||
+          inputs.test_suite == 'all' ||
+          inputs.test_suite == 'ui'
+        run: npx playwright test tests/e2e --project=mobile-chrome
+        continue-on-error: true
+        env:
+          CI: 'true'
+          BASE_URL: https://demoqa.com
+
+      # ── 7. API tests ──────────────────────────────────────────────────────────
+      - name: Run API tests
+        if: >
+          github.event_name != 'workflow_dispatch' ||
+          inputs.test_suite == 'all' ||
+          inputs.test_suite == 'api'
+        run: npm run test:api
+        continue-on-error: true
+        env:
+          CI: 'true'
+          BASE_URL: https://demoqa.com
+
+      # ── 8. Upload reports artifact ────────────────────────────────────────────
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-reports-${{ github.run_id }}
+          path: reports/
+          retention-days: 30
+
+      # ── 9. Publish JUnit test summary ─────────────────────────────────────────
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Playwright Test Results
+          path: reports/junit/results.xml
+          reporter: java-junit
+          fail-on-error: false
