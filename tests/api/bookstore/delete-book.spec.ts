@@ -7,16 +7,12 @@ const TEST_ISBN = '9781449325862';
 
 test.describe('DELETE /BookStore/v1/Book — Delete Single Book', () => {
   let userID = '';
-  let userName = '';
-  let password = '';
   let token = '';
 
   test.beforeAll(async ({ request }) => {
     const user = await createTestUser(request, 'bsdb');
     userID = user.userID;
-    userName = user.userName;
-    password = user.password;
-    token = await generateToken(request, userName, password);
+    token = await generateToken(request, user.userName, user.password);
   });
 
   test.afterAll(async ({ request }) => {

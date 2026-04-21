@@ -14,16 +14,12 @@ const REPLACEMENT_ISBN = '9781449331818';
 
 test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
   let userID = '';
-  let userName = '';
-  let password = '';
   let token = '';
 
   test.beforeAll(async ({ request }) => {
     const user = await createTestUser(request, 'bsrb');
     userID = user.userID;
-    userName = user.userName;
-    password = user.password;
-    token = await generateToken(request, userName, password);
+    token = await generateToken(request, user.userName, user.password);
   });
 
   test.afterAll(async ({ request }) => {

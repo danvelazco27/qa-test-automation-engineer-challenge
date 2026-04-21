@@ -1,12 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { BookStore } from '../../pages/BookStore';
-
-/** ISBN of "Git Pocket Guide" — used as the primary test book across all detail tests. */
-const TEST_ISBN = '9781449325862';
+import { TEST_ISBN } from './testData';
 
 test.describe('Book Detail page', () => {
-  test('BKD-001: all book metadata fields are visible and populated', async ({ page }) => {
-    const store = new BookStore(page);
+  let store: BookStore;
+
+  test.beforeEach(async ({ page }) => {
+    store = new BookStore(page);
+  });
+
+  test('BKD-001: all book metadata fields are visible and populated', async () => {
     await store.navigateToBookDetail('Git Pocket Guide');
 
     await expect(store.bookDetail.isbnValue).toBeVisible();
@@ -24,7 +27,6 @@ test.describe('Book Detail page', () => {
   });
 
   test('BKD-002: Back To Book Store button returns to /books', async ({ page }) => {
-    const store = new BookStore(page);
     await store.navigateToBookDetail('Git Pocket Guide');
 
     await store.bookDetail.clickBack();
@@ -34,7 +36,6 @@ test.describe('Book Detail page', () => {
   });
 
   test('BKD-003: unauthenticated login button on detail page redirects to /login', async ({ page }) => {
-    const store = new BookStore(page);
     await store.navigateToBookDetail('Git Pocket Guide');
 
     // When unauthenticated, DemoQA shows a "Login" button instead of
@@ -69,9 +70,8 @@ test.describe('Book Detail page', () => {
       expires = tokenData.expires;
     });
 
-    test.beforeEach(async ({ page }) => {
-      // Inject auth cookies — context-scoped, no prior navigation required
-      const store = new BookStore(page);
+    test.beforeEach(async () => {
+      // store is already created by the outer beforeEach; inject auth cookies
       await store.setAuthState(userID, userName, token, expires);
     });
 
@@ -84,7 +84,6 @@ test.describe('Book Detail page', () => {
     });
 
     test('BKD-004: authenticated add to collection succeeds', async ({ page, request }) => {
-      const store = new BookStore(page);
       await store.navigateToBookDetail('Git Pocket Guide');
 
       // DemoQA fires a native alert "Book added to your collection." once the server

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { BookStore } from '../../pages/BookStore';
 
 test.describe('Login page', () => {
+  let store: BookStore;
   let userID = '';
   let userName = '';
   let password = '';
@@ -32,8 +33,11 @@ test.describe('Login page', () => {
     }
   });
 
+  test.beforeEach(async ({ page }) => {
+    store = new BookStore(page);
+  });
+
   test('LOG-001: valid credentials redirect to /profile and display username', async ({ page }) => {
-    const store = new BookStore(page);
     await store.loginForm.navigateTo();
 
     await store.loginForm.login(userName, password);
@@ -44,7 +48,6 @@ test.describe('Login page', () => {
   });
 
   test('LOG-002: wrong password shows error and stays on /login', async ({ page }) => {
-    const store = new BookStore(page);
     await store.loginForm.navigateTo();
 
     await store.loginForm.login(userName, 'WrongPass@99');
@@ -57,7 +60,6 @@ test.describe('Login page', () => {
   });
 
   test('LOG-003: non-existent username shows error', async ({ page }) => {
-    const store = new BookStore(page);
     await store.loginForm.navigateTo();
 
     await store.loginForm.login('nonexistent_user_xyz999', 'Test@1234!');
@@ -70,7 +72,6 @@ test.describe('Login page', () => {
   });
 
   test('LOG-004: empty form does not redirect', async ({ page }) => {
-    const store = new BookStore(page);
     await store.loginForm.navigateTo();
 
     await store.loginForm.loginButton.click();
@@ -85,7 +86,6 @@ test.describe('Login page', () => {
   }) => {
     // Navigate to /profile via the sidebar Profile link without auth cookies.
     // DemoQA does not redirect /profile to /login — it renders the page blank.
-    const store = new BookStore(page);
     await store.navigateToProfileFromLogin();
     await expect(store.profile.userNameValue).toBeHidden();
 

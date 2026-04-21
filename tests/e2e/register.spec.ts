@@ -2,10 +2,14 @@ import { expect, test } from '@playwright/test';
 import { BookStore } from '../../pages/BookStore';
 
 test.describe('Register page', () => {
-  test('REG-001: all form fields and buttons are visible', async ({ page }) => {
-    const store = new BookStore(page);
-    await store.navigateToRegisterPage();
+  let store: BookStore;
 
+  test.beforeEach(async ({ page }) => {
+    store = new BookStore(page);
+    await store.navigateToRegisterPage();
+  });
+
+  test('REG-001: all form fields and buttons are visible', async () => {
     await expect(store.register.firstNameInput).toBeVisible();
     await expect(store.register.lastNameInput).toBeVisible();
     await expect(store.register.userNameInput).toBeVisible();
@@ -15,9 +19,6 @@ test.describe('Register page', () => {
   });
 
   test('REG-002: submitting empty form triggers HTML5 validation', async ({ page }) => {
-    const store = new BookStore(page);
-    await store.navigateToRegisterPage();
-
     await store.register.clickRegister();
 
     // HTML5 validation prevents submission — page must stay on /register
@@ -26,10 +27,7 @@ test.describe('Register page', () => {
     await expect(store.register.firstNameInput).toHaveAttribute('required', '');
   });
 
-  test('REG-003: weak password shows validation error or reCAPTCHA prompt', async ({ page }) => {
-    const store = new BookStore(page);
-    await store.navigateToRegisterPage();
-
+  test('REG-003: weak password shows validation error or reCAPTCHA prompt', async () => {
     await store.register.fillFirstName('Test');
     await store.register.fillLastName('User');
     await store.register.fillUserName(`weak_${Date.now()}`);
@@ -47,9 +45,6 @@ test.describe('Register page', () => {
   });
 
   test('REG-004: Back to Login button navigates to /login', async ({ page }) => {
-    const store = new BookStore(page);
-    await store.navigateToRegisterPage();
-
     await store.register.clickBackToLogin();
 
     await expect(page).toHaveURL(/\/login/);
@@ -64,9 +59,6 @@ test.describe('Register page', () => {
     const userName = `dup_reg_${Date.now()}`;
     const password = 'Test@1234!';
     await request.post('/Account/v1/User', { data: { userName, password } });
-
-    const store = new BookStore(page);
-    await store.navigateToRegisterPage();
 
     await store.register.fillFirstName('Test');
     await store.register.fillLastName('Dup');

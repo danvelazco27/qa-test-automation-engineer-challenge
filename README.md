@@ -110,7 +110,15 @@ tests/
     helpers.ts               ← createTestUser, generateToken, deleteTestUser
     account/                 ← 5 spec files (Account service)
     bookstore/               ← 6 spec files (BookStore service)
-  e2e/                       ← 6 spec files (UI + accessibility)
+  e2e/
+    utils.ts                 ← buildAxe(), getCriticalViolations() — shared accessibility helpers
+    testData.ts              ← TEST_ISBN, TEST_TITLE — shared test constants
+    a11y.spec.ts
+    book-detail.spec.ts
+    book-list.spec.ts
+    login.spec.ts
+    profile.spec.ts
+    register.spec.ts
 pages/
   BookStore.ts               ← Facade — entry point for all UI tests
   LoginFormPage.ts
@@ -156,7 +164,7 @@ See `docs/TESTING_PLAN.md` for the full architecture diagram, verified locator m
 
 ### What is WCAG?
 
-**WCAG (Web Content Accessibility Guidelines)** is the international standard for web accessibility, published by the W3C. It is organised into:
+**[WCAG (Web Content Accessibility Guidelines)](https://www.w3.org/WAI/standards-guidelines/wcag/)** is the international standard for web accessibility, published by the W3C. It is organised into:
 
 | Level | Meaning |
 |---|---|
