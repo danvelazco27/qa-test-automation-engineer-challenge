@@ -69,8 +69,9 @@ jobs:
         run: npm run lint
 
       # ── 6a. UI tests — Chromium ───────────────────────────────────────────────
-      # Each test step uses --reporter=blob so results accumulate in blob-report/
-      # without overwriting each other. merge-reports combines them at the end.
+      # Each test step writes blobs to its own subdirectory so that parallel runs
+      # (chromium, mobile-chrome, api) never overwrite each other's blob files.
+      # merge-reports collects all *.zip files from every subdir at the end.
       - name: Run UI tests (chromium)
         if: >
           github.event_name != 'workflow_dispatch' ||
@@ -81,6 +82,7 @@ jobs:
         env:
           CI: 'true'
           BASE_URL: https://demoqa.com
+          PLAYWRIGHT_BLOB_OUTPUT_DIR: blob-report/chromium
 
       # ── 6b. UI tests — Mobile Chrome ─────────────────────────────────────────
       - name: Run UI tests (mobile-chrome)
@@ -93,6 +95,7 @@ jobs:
         env:
           CI: 'true'
           BASE_URL: https://demoqa.com
+          PLAYWRIGHT_BLOB_OUTPUT_DIR: blob-report/mobile-chrome
 
       # ── 7. API tests ──────────────────────────────────────────────────────────
       - name: Run API tests
@@ -105,15 +108,19 @@ jobs:
         env:
           CI: 'true'
           BASE_URL: https://demoqa.com
+          PLAYWRIGHT_BLOB_OUTPUT_DIR: blob-report/api
 
       # ── 8. Merge blobs → single HTML + JUnit report ───────────────────────────
-      # Combines all blob files from blob-report/ into one unified report.
-      # Only the test suites that actually ran will appear in the merged output.
+      # Collects all *.zip blobs from every subdir (only subdirs whose test step ran
+      # will contain files) into a flat staging dir, then merges into one report.
+      # Retried tests are included automatically — the blob format captures full
+      # attempt history, which merge-reports preserves in the final HTML report.
       - name: Merge test reports
         if: always()
         run: |
-          mkdir -p reports/junit
-          npx playwright merge-reports --reporter=html,junit ./blob-report
+          mkdir -p blob-report-merged reports/junit
+          find blob-report -name "*.zip" -exec cp {} blob-report-merged/ \;
+          npx playwright merge-reports --reporter=html,junit ./blob-report-merged
         env:
           PLAYWRIGHT_HTML_OUTPUT_DIR: reports/html
           PLAYWRIGHT_JUNIT_OUTPUT_NAME: reports/junit/results.xml
