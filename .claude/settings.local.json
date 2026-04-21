@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:demoqa.com)",
+      "WebFetch(domain:playwright.dev)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npm view:*)"
+    ]
+  }
+}

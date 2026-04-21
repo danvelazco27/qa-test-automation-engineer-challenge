@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# TypeScript build output
+dist/
+
+# Playwright test artefacts
+test-results/
+reports/
+playwright-report/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+
+# Coverage
+coverage/
+.nyc_output/
