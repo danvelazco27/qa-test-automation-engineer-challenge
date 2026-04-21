@@ -33,7 +33,17 @@ jobs:
 
       # ── 3. Dependencies ───────────────────────────────────────────────────────
       - name: Install dependencies
+        id: npm-ci
         run: npm ci
+        continue-on-error: true
+
+      - name: Show npm debug log on failure
+        if: steps.npm-ci.outcome == 'failure'
+        run: cat $(ls -t ~/.npm/_logs/*.log 2>/dev/null | head -1) 2>/dev/null || echo "No npm log found"
+
+      - name: Fail if install failed
+        if: steps.npm-ci.outcome == 'failure'
+        run: exit 1
 
       # ── 4. Playwright browsers (cached) ──────────────────────────────────────
       - name: Cache Playwright browsers
