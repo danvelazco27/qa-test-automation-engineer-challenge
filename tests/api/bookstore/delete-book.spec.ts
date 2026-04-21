@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { createTestUser, deleteTestUser, generateToken } from '../helpers';
 import { ApiErrorSchema, HttpStatus, UserMessage } from '../../../types';
-
-/** ISBN of "Git Pocket Guide" — the book used in all delete tests. */
-const TEST_ISBN = '9781449325862';
+import { TEST_ISBN } from '../testData';
 
 test.describe('DELETE /BookStore/v1/Book — Delete Single Book', () => {
   let userID = '';

@@ -1,19 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
-
-/**
- * Page Object for the Book List page (/books).
- * Provides methods for navigating, searching, and interacting with the book catalogue.
- *
- * Table structure: DemoQA renders books in a plain HTML `<table>` (not ReactTable).
- * After calling {@link search}, use {@link waitForBookCount} to let the table settle
- * before asserting row counts — the search input applies a debounce before filtering.
- */
 export class BookListPage {
-  /** Search/filter input for narrowing books by title or author. */
   readonly searchInput: Locator;
-  /** All `<tr>` rows in the table body (one per visible book). */
   readonly bookRows: Locator;
-  /** Anchor tags for each book title rendered in the table body. */
   readonly bookTitleLinks: Locator;
 
   constructor(private readonly page: Page) {

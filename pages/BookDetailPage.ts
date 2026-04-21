@@ -1,43 +1,15 @@
 import { type Locator, type Page } from '@playwright/test';
-
-/**
- * Page Object for the Book Detail page (/books?search={isbn}).
- * Provides methods to read book metadata and interact with action buttons.
- *
- * Navigation quirk: directly loading `/books?search={isbn}` renders the book LIST,
- * not the detail view. Always arrive here via {@link BookListPage.clickBook} and then
- * `await page.waitForURL(/books\?search=/)` before using this class.
- *
- * Button quirk: When unauthenticated only "Back To Book Store" is present.
- * When authenticated, "Add To Your Collection" is also rendered (both share
- * `id="addNewRecordButton"`, so role + name selectors are used to disambiguate).
- *
- * Value locators: Each metadata field is wrapped in a `#field-wrapper` div that
- * contains two labels — a static field name and the dynamic value. Locators in this
- * class target `.col-md-9 label` within each wrapper to return only the value text.
- */
 export class BookDetailPage {
-  /** "Back To Book Store" button (always present on the detail page). */
   readonly backButton: Locator;
-  /** "Add To Your Collection" action button (only rendered when authenticated). */
   readonly addToCollectionButton: Locator;
-  /** "Login" button shown inside `#login-wrapper` when the user is unauthenticated. */
   readonly loginButton: Locator;
-  /** Value label for the book title. */
   readonly titleValue: Locator;
-  /** Value label for the subtitle. */
   readonly subtitleValue: Locator;
-  /** Value label for the author. */
   readonly authorValue: Locator;
-  /** Value label for the publisher. */
   readonly publisherValue: Locator;
-  /** Value label for the ISBN. */
   readonly isbnValue: Locator;
-  /** Value label for the total pages count. */
   readonly pagesValue: Locator;
-  /** Value label for the description. */
   readonly descriptionValue: Locator;
-  /** Value label for the website URL. */
   readonly websiteValue: Locator;
 
   constructor(private readonly page: Page) {

@@ -1,29 +1,12 @@
 import { type Locator, type Page } from '@playwright/test';
 
-/**
- * Page Object for the Registration page (/register).
- * Provides methods to fill the registration form and read its output state.
- *
- * reCAPTCHA v3 note: The page loads an invisible Google reCAPTCHA v3 script.
- * There is no visible checkbox widget. Form-validation tests that do not require
- * a successful submission are fully automatable. For tests that require a registered
- * user, create the user via `POST /Account/v1/User` instead to bypass any
- * server-side score rejection from the headless browser.
- */
 export class RegisterPage {
-  /** First name text input. */
   readonly firstNameInput: Locator;
-  /** Last name text input. */
   readonly lastNameInput: Locator;
-  /** Username text input. */
   readonly userNameInput: Locator;
-  /** Password input. */
   readonly passwordInput: Locator;
-  /** Register submit button. */
   readonly registerButton: Locator;
-  /** "Back to Login" navigation button. */
   readonly backToLoginButton: Locator;
-  /** React-rendered output container showing server responses or validation errors. */
   readonly outputMessage: Locator;
 
   constructor(private readonly page: Page) {

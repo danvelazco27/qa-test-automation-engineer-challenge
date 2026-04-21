@@ -15,14 +15,6 @@ import { RegisterPage } from './RegisterPage';
  * {@link bookStoreNavLink} and {@link profileNavLink} are always visible on
  * /login, /books, /profile and related pages.
  *
- * @example
- * ```typescript
- * test('search books', async ({ page }) => {
- *   const store = new BookStore(page);
- *   await store.navigateToBookStore();
- *   await store.bookList.search('JavaScript');
- * });
- * ```
  */
 export class BookStore {
   /** Page object for the Login form (/login). */

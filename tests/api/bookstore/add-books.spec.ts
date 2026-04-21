@@ -6,9 +6,7 @@ import {
   HttpStatus,
   UserMessage,
 } from '../../../types';
-
-/** ISBN of "Git Pocket Guide" — used as the primary book for collection tests. */
-const TEST_ISBN = '9781449325862';
+import { TEST_ISBN } from '../testData';
 
 test.describe('POST /BookStore/v1/Books — Add Books to Collection', () => {
   let userID = '';

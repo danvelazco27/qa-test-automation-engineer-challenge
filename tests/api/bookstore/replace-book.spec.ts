@@ -6,11 +6,7 @@ import {
   HttpStatus,
   UserMessage,
 } from '../../../types';
-
-/** ISBN of "Git Pocket Guide" — the book to replace. */
-const ORIGINAL_ISBN = '9781449325862';
-/** ISBN of "Learning JavaScript Design Patterns" — the replacement. */
-const REPLACEMENT_ISBN = '9781449331818';
+import { TEST_ISBN, REPLACEMENT_ISBN } from '../testData';
 
 test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
   let userID = '';
@@ -32,7 +28,7 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     await request.post('/BookStore/v1/Books', {
-      data: { userId: userID, collectionOfIsbns: [{ isbn: ORIGINAL_ISBN }] },
+      data: { userId: userID, collectionOfIsbns: [{ isbn: TEST_ISBN }] },
       headers: { Authorization: `Bearer ${token}` },
     });
   });
@@ -41,7 +37,7 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
     request,
   }) => {
     const resp = await request.put(
-      `/BookStore/v1/Books/${ORIGINAL_ISBN}`,
+      `/BookStore/v1/Books/${TEST_ISBN}`,
       {
         data: { userId: userID, isbn: REPLACEMENT_ISBN },
         headers: { Authorization: `Bearer ${token}` },
@@ -56,7 +52,7 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
     expect(parsed.userId).toBe(userID);
     const replacedBook = parsed.books.find((b) => b.isbn === REPLACEMENT_ISBN);
     expect(replacedBook).toBeDefined();
-    const originalBook = parsed.books.find((b) => b.isbn === ORIGINAL_ISBN);
+    const originalBook = parsed.books.find((b) => b.isbn === TEST_ISBN);
     expect(originalBook).toBeUndefined();
   });
 
@@ -64,7 +60,7 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
     request,
   }) => {
     const resp = await request.put(
-      `/BookStore/v1/Books/${ORIGINAL_ISBN}`,
+      `/BookStore/v1/Books/${TEST_ISBN}`,
       {
         data: { userId: userID, isbn: '0000000000000' },
         headers: { Authorization: `Bearer ${token}` },
@@ -80,7 +76,7 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
 
   test('BSRB-003: missing auth token returns 401', async ({ request }) => {
     const resp = await request.put(
-      `/BookStore/v1/Books/${ORIGINAL_ISBN}`,
+      `/BookStore/v1/Books/${TEST_ISBN}`,
       { data: { userId: userID, isbn: REPLACEMENT_ISBN } }
     );
 

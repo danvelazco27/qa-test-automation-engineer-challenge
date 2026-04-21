@@ -5,11 +5,8 @@ import type { APIRequestContext } from '@playwright/test';
  * Returned by {@link createTestUser} and consumed by clean-up calls.
  */
 export interface TestUser {
-  /** UUID assigned by the server on account creation. */
   userID: string;
-  /** The username chosen for this test user. */
   userName: string;
-  /** The plaintext password used to create this account. */
   password: string;
 }
 

@@ -8,6 +8,7 @@ dist/
 test-results/
 reports/
 playwright-report/
+.playwright/
 
 # OS artefacts
 .DS_Store

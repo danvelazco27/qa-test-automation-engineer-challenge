@@ -1,29 +1,12 @@
 import { type Locator, type Page } from '@playwright/test';
 
-/**
- * Page Object for the User Profile page (/profile).
- * Provides methods to read the authenticated user's state and manage their book collection.
- *
- * Button quirk: The profile page renders multiple buttons that share `id="submit"` —
- * Logout, Delete Account, and Delete All Books. All button locators in this class use
- * `getByRole('button', { name: '...' })` to disambiguate by visible text.
- *
- * Table structure: DemoQA renders the book collection as a plain HTML `<table>` (not ReactTable).
- */
 export class ProfilePage {
-  /** Label element displaying the currently logged-in user's username. */
   readonly userNameValue: Locator;
-  /** "Logout" button. */
   readonly logoutButton: Locator;
-  /** "Delete Account" button. */
   readonly deleteAccountButton: Locator;
-  /** "Delete All Books" button. */
   readonly deleteAllBooksButton: Locator;
-  /** "Go To Book Store" navigation button. */
   readonly goToBookStoreButton: Locator;
-  /** The `<tbody>` element of the book collection table. */
   readonly bookTableBody: Locator;
-  /** All `<tr>` rows in the book collection table body. */
   readonly bookRows: Locator;
 
   constructor(private readonly page: Page) {

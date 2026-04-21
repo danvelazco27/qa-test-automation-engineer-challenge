@@ -1,8 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { BooksResponseSchema, HttpStatus } from '../../../types';
-
-/** Known stable ISBN used for presence assertions. */
-const KNOWN_ISBN = '9781449325862';
+import { TEST_ISBN } from '../testData';
 
 test.describe('GET /BookStore/v1/Books — Get All Books', () => {
   test('BSGL-001: returns 200 with books array matching schema', async ({
@@ -27,13 +25,13 @@ test.describe('GET /BookStore/v1/Books — Get All Books', () => {
     const parsed = BooksResponseSchema.parse(body);
 
     // Spot-check the well-known Git Pocket Guide entry
-    const gitBook = parsed.books.find((b) => b.isbn === KNOWN_ISBN);
+    const gitBook = parsed.books.find((b) => b.isbn === TEST_ISBN);
     expect(gitBook).toBeDefined();
     expect(gitBook?.title).toBe('Git Pocket Guide');
     expect(gitBook?.author).toBe('Richard E. Silverman');
     expect(gitBook?.publisher).toBe("O'Reilly Media");
     expect(gitBook?.pages).toBeGreaterThan(0);
-    expect(gitBook?.isbn).toBe(KNOWN_ISBN);
+    expect(gitBook?.isbn).toBe(TEST_ISBN);
   });
 
   test('BSGL-003: endpoint is accessible without authentication', async ({

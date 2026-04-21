@@ -1,21 +1,11 @@
 import { type Locator, type Page } from '@playwright/test';
 
-/**
- * Page Object for the Login form page (/login).
- * Handles credential input, form submission, and login error/success state reading.
- */
 export class LoginFormPage {
-  /** Username text input field. */
   readonly userNameInput: Locator;
-  /** Password input field. */
   readonly passwordInput: Locator;
-  /** Login submit button. */
   readonly loginButton: Locator;
-  /** "New User" button that navigates to /register. */
   readonly newUserButton: Locator;
-  /** Container element that becomes visible after a failed login attempt. */
   readonly errorOutput: Locator;
-  /** Element inside {@link errorOutput} containing the error message text. */
   readonly errorMessage: Locator;
 
   constructor(private readonly page: Page) {
