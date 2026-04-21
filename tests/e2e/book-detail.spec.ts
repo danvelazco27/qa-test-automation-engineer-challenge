@@ -5,7 +5,7 @@ import { TEST_ISBN } from './testData';
 test.describe('Book Detail page', () => {
   let store: BookStore;
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(({ page }) => {
     store = new BookStore(page);
   });
 

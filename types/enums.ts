@@ -20,16 +20,11 @@ export enum HttpStatus {
  * Centralises path strings so that a renamed route is a single-line fix.
  */
 export enum ApiEndpoints {
-  CREATE_USER = '/Account/v1/User',
+  USER = '/Account/v1/User',
   GENERATE_TOKEN = '/Account/v1/GenerateToken',
   AUTHORIZED = '/Account/v1/Authorized',
-  USER_BY_ID = '/Account/v1/User',
-  GET_BOOKS = '/BookStore/v1/Books',
-  ADD_BOOKS = '/BookStore/v1/Books',
-  DELETE_ALL_BOOKS = '/BookStore/v1/Books',
-  BOOK_BY_ISBN = '/BookStore/v1/Book',
-  GET_BOOK = '/BookStore/v1/Book',
-  DELETE_BOOK = '/BookStore/v1/Book',
+  BOOKS = '/BookStore/v1/Books',
+  BOOK = '/BookStore/v1/Book',
 }
 
 /**

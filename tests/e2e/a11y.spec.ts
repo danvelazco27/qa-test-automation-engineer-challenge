@@ -28,16 +28,16 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
     expires = tokenData.expires;
   });
 
+  test.beforeEach(({ page }) => {
+    store = new BookStore(page);
+  });
+
   test.afterAll(async ({ request }) => {
     if (userID && token) {
       await request.delete(`/Account/v1/User/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     }
-  });
-
-  test.beforeEach(async ({ page }) => {
-    store = new BookStore(page);
   });
 
   test('A11Y-001: book list page has no critical accessibility violations', async ({ page }) => {

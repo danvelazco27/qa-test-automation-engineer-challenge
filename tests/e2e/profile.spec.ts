@@ -28,16 +28,16 @@ test.describe('Profile page', () => {
     expires = tokenData.expires;
   });
 
+  test.beforeEach(({ page }) => {
+    store = new BookStore(page);
+  });
+
   test.afterAll(async ({ request }) => {
     if (userID && token) {
       await request.delete(`/Account/v1/User/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     }
-  });
-
-  test.beforeEach(async ({ page }) => {
-    store = new BookStore(page);
   });
 
   // ── Unauthenticated tests (no auth injection) ────────────────────────────────

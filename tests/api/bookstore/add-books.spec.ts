@@ -22,15 +22,15 @@ test.describe('POST /BookStore/v1/Books — Add Books to Collection', () => {
     token = await generateToken(request, userName, password);
   });
 
-  test.afterAll(async ({ request }) => {
-    await deleteTestUser(request, userID, token);
-  });
-
   test.afterEach(async ({ request }) => {
     // Remove all books between tests to keep the collection clean
     await request.delete(`/BookStore/v1/Books?UserId=${userID}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+  });
+
+  test.afterAll(async ({ request }) => {
+    await deleteTestUser(request, userID, token);
   });
 
   test('BSAB-001: valid ISBN adds book and returns 201 with isbn list', async ({

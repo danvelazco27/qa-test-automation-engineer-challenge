@@ -24,7 +24,7 @@ test.describe('POST /Account/v1/User — Create User', () => {
 
     expect(resp.status()).toBe(HttpStatus.CREATED);
 
-    const body = await resp.json();
+    const body: unknown = await resp.json();
     // Zod parse validates the exact response shape
     const parsed = CreateUserResponseSchema.parse(body);
     expect(parsed.username).toBe(userName);

@@ -25,16 +25,16 @@ test.describe('Login page', () => {
     cleanupToken = tokenData.token;
   });
 
+  test.beforeEach(({ page }) => {
+    store = new BookStore(page);
+  });
+
   test.afterAll(async ({ request }) => {
     if (userID && cleanupToken) {
       await request.delete(`/Account/v1/User/${userID}`, {
         headers: { Authorization: `Bearer ${cleanupToken}` },
       });
     }
-  });
-
-  test.beforeEach(async ({ page }) => {
-    store = new BookStore(page);
   });
 
   test('LOG-001: valid credentials redirect to /profile and display username', async ({ page }) => {

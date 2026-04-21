@@ -18,10 +18,6 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
     token = await generateToken(request, user.userName, user.password);
   });
 
-  test.afterAll(async ({ request }) => {
-    await deleteTestUser(request, userID, token);
-  });
-
   test.beforeEach(async ({ request }) => {
     // Start each test with a clean collection containing only the original book
     await request.delete(`/BookStore/v1/Books?UserId=${userID}`, {
@@ -31,6 +27,10 @@ test.describe('PUT /BookStore/v1/Books/{ISBN} — Replace Book', () => {
       data: { userId: userID, collectionOfIsbns: [{ isbn: TEST_ISBN }] },
       headers: { Authorization: `Bearer ${token}` },
     });
+  });
+
+  test.afterAll(async ({ request }) => {
+    await deleteTestUser(request, userID, token);
   });
 
   test('BSRB-001: valid replace returns 200 with updated user object', async ({
