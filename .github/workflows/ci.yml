@@ -29,21 +29,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24.14.1'
-          cache: 'npm'
 
-      # ── 3. Dependencies ───────────────────────────────────────────────────────
+      # ── 3. Dependencies (node_modules cached by package.json hash) ────────────
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package.json') }}
+
       - name: Install dependencies
-        id: npm-ci
-        run: npm ci
-        continue-on-error: true
-
-      - name: Show npm debug log on failure
-        if: steps.npm-ci.outcome == 'failure'
-        run: cat $(ls -t ~/.npm/_logs/*.log 2>/dev/null | head -1) 2>/dev/null || echo "No npm log found"
-
-      - name: Fail if install failed
-        if: steps.npm-ci.outcome == 'failure'
-        run: exit 1
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm install
+        env:
+          npm_config_registry: https://registry.npmjs.org
 
       # ── 4. Playwright browsers (cached) ──────────────────────────────────────
       - name: Cache Playwright browsers
@@ -51,8 +50,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
-          restore-keys: playwright-
+          key: playwright-${{ runner.os }}-${{ hashFiles('package.json') }}
+          restore-keys: playwright-${{ runner.os }}-
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
