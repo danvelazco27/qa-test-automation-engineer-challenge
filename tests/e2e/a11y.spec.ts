@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { BookStore } from '../../pages/BookStore';
-import { buildAxe, getCriticalViolations } from './utils';
+import { buildAxe, getCriticalViolations } from './helpers';
 
 test.describe('Accessibility — WCAG 2.1 AA', () => {
   let store: BookStore;

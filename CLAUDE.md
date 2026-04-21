@@ -59,7 +59,7 @@ Every UI test starts with `new BookStore(page)` in `beforeEach`. No locator stri
 |---|---|
 | `pages/BookStore.ts` | Facade — single entry point for all UI tests. All compound navigation methods live here. |
 | `tests/api/helpers.ts` | `createTestUser`, `generateToken`, `deleteTestUser` |
-| `tests/e2e/utils.ts` | `buildAxe()`, `getCriticalViolations()` — shared a11y helpers |
+| `tests/e2e/helpers.ts` | `buildAxe()`, `getCriticalViolations()` — shared a11y helpers |
 | `tests/e2e/testData.ts` | `TEST_ISBN`, `TEST_TITLE` — shared test constants |
 | `types/models.ts` | All Zod schemas for API responses |
 | `types/enums.ts` | `HttpStatus`, `ApiEndpoints`, `UserMessage` |
@@ -198,7 +198,7 @@ Use in-app navigation buttons wherever they exist. Use direct `goto()` only for 
 ### Accessibility
 - Exclude from axe scans: `header`, `.left-pannel`, `.btn-outline-secondary`, `iframe[id^="google_ads_iframe_"]`
 - Disable rules: `color-contrast`, `aria-command-name` (all vendor-side issues)
-- Only fail on `critical` and `serious` impact — use `getCriticalViolations()` from `tests/e2e/utils.ts`
+- Only fail on `critical` and `serious` impact — use `getCriticalViolations()` from `tests/e2e/helpers.ts`
 
 ---
 
@@ -240,7 +240,7 @@ Use in-app navigation buttons wherever they exist. Use direct `goto()` only for 
 3. Add any shared navigation to `beforeEach` if all tests in the describe start at the same page.
 4. No locator strings or navigation calls inside test bodies — only POM method calls and assertions.
 5. Import shared constants from `tests/e2e/testData.ts`.
-6. Import shared utilities from `tests/e2e/utils.ts`.
+6. Import shared utilities from `tests/e2e/helpers.ts`.
 
 ### New Page Class Method
 1. Add locator as a `readonly` property in the constructor.

@@ -108,10 +108,11 @@ Full coverage of the DemoQA REST API with runtime Zod schema validation on every
 tests/
   api/
     helpers.ts               ← createTestUser, generateToken, deleteTestUser
+    testData.ts              ← TEST_ISBN, REPLACEMENT_ISBN — shared BookStore test constants
     account/                 ← 5 spec files (Account service)
     bookstore/               ← 6 spec files (BookStore service)
   e2e/
-    utils.ts                 ← buildAxe(), getCriticalViolations() — shared accessibility helpers
+    helpers.ts               ← buildAxe(), getCriticalViolations() — shared accessibility helpers
     testData.ts              ← TEST_ISBN, TEST_TITLE — shared test constants
     a11y.spec.ts
     book-detail.spec.ts

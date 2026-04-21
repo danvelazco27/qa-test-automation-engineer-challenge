@@ -32,7 +32,7 @@ You have deep knowledge of every quirk of the DemoQA application and every patte
 | Path | Purpose |
 |---|---|
 | `tests/api/helpers.ts` | `createTestUser`, `generateToken`, `deleteTestUser` |
-| `tests/e2e/utils.ts` | `buildAxe`, `getCriticalViolations` |
+| `tests/e2e/helpers.ts` | `buildAxe`, `getCriticalViolations` |
 | `tests/e2e/testData.ts` | `TEST_ISBN`, `TEST_TITLE` |
 | `types/` | All Zod schemas and enums |
 | `pages/BookStore.ts` | UI facade — entry point for all UI tests |
@@ -197,7 +197,7 @@ test.describe('Component name', () => {
 - No `page.locator(...)` in test files — use page class properties
 - No navigation calls in test bodies when they can go in `beforeEach`
 - Use `await expect(locator).toSomething()` (web-first) — never `expect(await locator.something()).toBe()`
-- Shared constants → `tests/e2e/testData.ts`; shared a11y helpers → `tests/e2e/utils.ts`
+- Shared constants → `tests/e2e/testData.ts`; shared a11y helpers → `tests/e2e/helpers.ts`
 
 ---
 
